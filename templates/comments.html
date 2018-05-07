@@ -1,0 +1,21 @@
+{% for feedback in all_feedback %}
+    <div class="card {{ loop.cycle('comment-odd', 'comment-even') }} feedback-comment">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    {{ feedback.comments }}
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 small">
+                    {{ 'Unread' if feedback.read == False }}
+                </div>
+                <div class="col-lg-6 small text-right">
+                    {{ feedback.message_timestamp }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+{% endfor %}

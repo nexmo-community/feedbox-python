@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="display-4">Feedbox <i class="fa fa-comments" aria-hidden="true"></i></h1>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="display-5">
+                            <i class="fa fa-mobile" aria-hidden="true"></i> 201-817-3258</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <img src="/static/feedbox-qr.png" class="img-fluid" alt="">
+                    </div>
+                    <div class="col-lg-8">
+                        Using Nexmo's SMS API we can retrieve SMS messages on a webhook. The message and
+                        details get stored in a database and a script running on the AIY Google Voice kit picks them
+                        up.
+                        <br><br>
+                        At the press of a button, all of your messages get played out.
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" id="recent-feedback">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        const $feedback = $("#recent-feedback");
+
+        loadComments();
+        setInterval(loadComments, 5000);
+
+        function loadComments() {
+            $.get('/recent-comments', function (data) {
+                    if ($feedback.html() !== decodeEntities(data)) {
+                        $feedback.fadeOut('slow', function () {
+                            $feedback.html(data).fadeIn('slow')
+                        })
+                    }
+                }
+            )
+        }
+
+        function decodeEntities(encodedString) {
+            let textArea = document.createElement('textarea');
+            textArea.innerHTML = encodedString;
+            return textArea.value;
+        }
+    </script>
+{% endblock %}

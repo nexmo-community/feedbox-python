@@ -1,0 +1,12 @@
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+    background-color: #1691B1;
+}
+
+.comment-odd {
+    background-color: #1691B1;
+    color: #fff;
+}
+
+.comment-even {
+    color: #1691B1;
+}
