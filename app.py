@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', phone_number=os.environ['PHONE_NUMBER'])
 
 
 @app.route('/recent-comments-json')
