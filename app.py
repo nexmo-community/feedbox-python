@@ -15,18 +15,6 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/recent-comments')
-def recent_comments():
-    all_feedback = get_all_feedback()[:3]
-    return render_template('comments.html', all_feedback=all_feedback)
-
-
-@app.route('/all-comments')
-def all_comments():
-    all_feedback = get_all_feedback()
-    return render_template('comments.html', all_feedback=all_feedback)
-
-
 @app.route('/recent-comments-json')
 def resent_comments_json():
     recent_comments = get_all_feedback()[:3]
