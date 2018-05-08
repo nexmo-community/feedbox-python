@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -15,7 +15,6 @@ def index():
     return render_template('index.html')
 
 
-# Render HTML template after page loads so we can periodically update via AJAX
 @app.route('/recent-comments')
 def recent_comments():
     all_feedback = get_all_feedback()[:3]
@@ -26,6 +25,18 @@ def recent_comments():
 def all_comments():
     all_feedback = get_all_feedback()
     return render_template('comments.html', all_feedback=all_feedback)
+
+
+@app.route('/recent-comments-json')
+def resent_comments_json():
+    recent_comments = get_all_feedback()[:3]
+    return jsonify(extract_feedback_properties(recent_comments))
+
+
+@app.route('/unread-comments-json')
+def unread_comments_json():
+    unread_comments = get_all_unread_feedback()
+    return jsonify(extract_feedback_properties(unread_comments))
 
 
 @app.route('/sms-webhook', methods=['POST'])
@@ -44,10 +55,33 @@ def sms_webhook():
     return "Thanks for your comments"
 
 
+@app.route('/mark-read', methods=['POST'])
+def mark_read():
+    feedback = Feedback.query.filter_by(id=request.form['id']).first()
+    if feedback.concat_ref is 0:
+        feedback.read = True
+    else:
+        related_feedback = Feedback.query.filter_by(concat_ref=feedback.concat_ref).all()
+        for related in related_feedback:
+            related.read = True
+
+    db.session.commit()
+    return "Message %s marked read." % request.form['id']
+
+
 def get_all_feedback():
-    feedback_in_parts = Feedback.query.order_by('-id').all()
+    all_feedback = Feedback.query.order_by('-id').all()
+    return concatenate_feedback(all_feedback)
+
+
+def get_all_unread_feedback():
+    all_unread_feedback = Feedback.query.order_by('-id').filter_by(read=False).all()
+    return concatenate_feedback(all_unread_feedback)
+
+
+def concatenate_feedback(feedbacks):
     all_feedback = []
-    for feedback in feedback_in_parts:
+    for feedback in feedbacks:
         # Message is not concatenated
         if feedback.concat_ref is 0:
             all_feedback.append(feedback)
@@ -55,8 +89,8 @@ def get_all_feedback():
         # First concatenated message
         elif feedback.concat_part is 1:
             # Search the original list for the rest of the message and sort by the part.
-            components = [component for component in feedback_in_parts if component.concat_ref is feedback.concat_ref]
-            components.sort(key = lambda x: x.concat_part)
+            components = [component for component in feedbacks if component.concat_ref is feedback.concat_ref]
+            components.sort(key=lambda x: x.concat_part)
 
             # Concatenate all of the parts to the first part and add the first part to the feedback list.
             for component in components[1:]:
@@ -66,10 +100,24 @@ def get_all_feedback():
     return all_feedback
 
 
-"""
-Model that represents the feedback information.
-"""
+def extract_feedback_properties(feedbacks):
+    output_feedback = []
+    for feedback in feedbacks:
+        output_feedback.append(
+            {
+                'id': feedback.id,
+                'comment': feedback.comments,
+                'message_timestamp': str(feedback.message_timestamp),
+                'read': feedback.read
+            }
+        )
+    return output_feedback
+
+
 class Feedback(db.Model):
+    """
+    Model that represents the feedback information.
+    """
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     message_id = db.Column(db.String)
     concat_ref = db.Column(db.Integer)

@@ -37,15 +37,43 @@
 {% block scripts %}
     <script>
         const $feedback = $("#recent-feedback");
+        let comment_cache;
 
         loadComments();
         setInterval(loadComments, 5000);
 
         function loadComments() {
-            $.get('/recent-comments', function (data) {
-                    if ($feedback.html() !== decodeEntities(data)) {
+            $.get('/recent-comments-json', function (data) {
+                    if (comment_cache !== JSON.stringify(data)) {
+                        comment_cache = JSON.stringify(data);
                         $feedback.fadeOut('slow', function () {
-                            $feedback.html(data).fadeIn('slow')
+                            $feedback.html("");
+                            let feedbackHtml = ""
+                            for (let i = 0; i < data.length; i++) {
+                                feedbackHtml +=
+                                    `
+                                <div class="card ${i % 2 ? 'comment-even' : 'comment-odd'} feedback-comment">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                ${ data[i].comment }
+                                                <hr>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6 small">
+                                                ${ data[i].read ? '' : 'Unread' }
+                                            </div>
+                                            <div class="col-lg-6 small text-right">
+                                                ${ data[i].message_timestamp }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                `
+                            }
+                            $feedback.html(feedbackHtml).fadeIn('slow');
                         })
                     }
                 }
