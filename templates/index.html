@@ -52,7 +52,7 @@
                             for (let i = 0; i < data.length; i++) {
                                 feedbackHtml +=
                                     `
-                                <div class="card ${i % 2 ? 'comment-even' : 'comment-odd'} feedback-comment">
+                                <div class="card ${i % 2 ? 'comment-even' : 'comment-odd'} ${data[i].read ? 'comment-read' : ''} feedback-comment">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-lg-12">

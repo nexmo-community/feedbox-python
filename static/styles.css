@@ -10,3 +10,7 @@
 .comment-odd {
     color: #1691B1;
 }
+
+.comment-read {
+    opacity: 0.3;
+}
