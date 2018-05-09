@@ -14,3 +14,8 @@
 .comment-read {
     opacity: 0.3;
 }
+
+#recent-feedback {
+    height: calc(100vh - 200px);
+    overflow: scroll;
+}
