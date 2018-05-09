@@ -63,7 +63,7 @@ def get_all_feedback():
 
 
 def get_all_unread_feedback():
-    all_unread_feedback = Feedback.query.order_by('-id').filter_by(read=False).all()
+    all_unread_feedback = Feedback.query.order_by('id').filter_by(read=False).all()
     return concatenate_feedback(all_unread_feedback)
 
 
