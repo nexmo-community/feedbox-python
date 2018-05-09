@@ -17,7 +17,7 @@ def index():
 
 @app.route('/recent-comments-json')
 def resent_comments_json():
-    recent_comments = get_all_feedback()[:3]
+    recent_comments = get_all_feedback()[:5]
     return jsonify(extract_feedback_properties(recent_comments))
 
 
